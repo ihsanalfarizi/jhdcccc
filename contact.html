@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Billing - Klinik JHDC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            grid-column: 1 / -1;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-section {
+            height: fit-content;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-input:disabled, .form-select:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .bill-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .bill-section h2 {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .patient-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .patient-info h3 {
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+        }
+
+        .treatment-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .treatment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .treatment-item:last-child {
+            border-bottom: none;
+        }
+
+        .treatment-name {
+            font-weight: 600;
+        }
+
+        .treatment-price {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .total {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .total-amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .remove-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .remove-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .print-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .print-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: #27ae60;
+        }
+
+        .alert.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .diagnosis-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .diagnosis-section h4 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .diagnosis-text {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                display: block;
+            }
+            
+            .form-section {
+                display: none;
+            }
+            
+            .bill-section {
+                background: white !important;
+                color: black !important;
+                box-shadow: none;
+                border: 2px solid #333;
+            }
+            
+            .bill-section h2,
+            .patient-info h3,
+            .diagnosis-section h4 {
+                color: black !important;
+            }
+            
+            .patient-info,
+            .treatment-list,
+            .total,
+            .diagnosis-section {
+                background: #f8f9fa !important;
+                color: black !important;
+                border: 1px solid #ddd;
+            }
+            
+            .print-btn {
+                display: none;
+            }
+            
+            .share-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card header">
+            <h1><i class="fas fa-hospital"></i> Klinik JHDC</h1>
+            <p>Sistem Billing dan Keterangan Pemeriksaan</p>
+        </div>
+
+        <div class="card form-section">
+            <h2><i class="fas fa-user-plus"></i> Data Pasien & Tindakan</h2>
+            
+            <div class="alert" id="alert"></div>
+            
+            <form id="patientForm">
+                <div class="form-group">
+                    <label for="queueNumber">Nomor Antrian:</label>
+                    <input type="text" id="queueNumber" class="form-input" placeholder="A001" readonly style="background: #e8f4fd; font-weight: bold; font-size: 1.2em; text-align: center;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientName">Nama Pasien:</label>
+                    <input type="text" id="patientName" class="form-input" placeholder="Masukkan nama lengkap pasien" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientAge">Umur:</label>
+                    <input type="number" id="patientAge" class="form-input" placeholder="Umur pasien" min="1" max="150" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientPhone">Nomor Telepon:</label>
+                    <input type="tel" id="patientPhone" class="form-input" placeholder="08xx-xxxx-xxxx">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientEmail">Email:</label>
+                    <input type="email" id="patientEmail" class="form-input" placeholder="contoh@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="treatmentSelect">Pilih Tindakan:</label>
+                    <select id="treatmentSelect" class="form-select" required>
+                        <option value="">-- Pilih Tindakan --</option>
+                        <option value="tambal_kecil">Tambal Gigi Kecil - Rp 500,000</option>
+                        <option value="tambal_sedang">Tambal Gigi Sedang - Rp 800,000</option>
+                        <option value="tambal_besar">Tambal Gigi Besar - Rp 1,200,000</option>
+                        <option value="scaling">Scaling Gigi - Rp 300,000</option>
+                        <option value="cabut_gigi">Cabut Gigi - Rp 250,000</option>
+                        <option value="root_canal">Root Canal Treatment - Rp 1,500,000</option>
+                        <option value="crown">Pemasangan Crown - Rp 2,000,000</option>
+                        <option value="konsultasi">Konsultasi Dokter - Rp 150,000</option>
+                        <option value="rontgen">Rontgen Gigi - Rp 200,000</option>
+                        <option value="bleaching">Bleaching Gigi - Rp 1,000,000</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="diagnosis">Diagnosis & Keterangan:</label>
+                    <textarea id="diagnosis" class="form-input" rows="4" placeholder="Masukkan diagnosis dan keterangan pemeriksaan..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn" id="addTreatmentBtn">
+                    <i class="fas fa-plus"></i> Tambah Tindakan ke Bill
+                </button>
+                
+                <button type="button" class="btn" onclick="resetForm()" id="resetBtn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); margin-top: 10px; display: none;">
+                    <i class="fas fa-refresh"></i> Reset Form - Pasien Baru
+                </button>
+            </form>
+        </div>
+
+        <div class="card bill-section">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Bill Pembayaran</h2>
+            
+            <div class="patient-info" id="patientInfo" style="display: none;">
+                <h3><i class="fas fa-user"></i> Informasi Pasien</h3>
+                <div class="info-row">
+                    <span>No. Antrian:</span>
+                    <span id="displayQueue" style="font-weight: bold; font-size: 1.1em; color: #fff;">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Nama:</span>
+                    <span id="displayName">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Umur:</span>
+                    <span id="displayAge">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Telepon:</span>
+                    <span id="displayPhone">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Email:</span>
+                    <span id="displayEmail">-</span>
+                </div>
+                <div class="info-row">
+                    <span>Tanggal:</span>
+                    <span id="displayDate">-</span>
+                </div>
+            </div>
+
+            <div class="treatment-list">
+                <h3><i class="fas fa-list"></i> Daftar Tindakan</h3>
+                <div id="treatmentItems">
+                    <p style="text-align: center; opacity: 0.7; padding: 40px 0;">
+                        <i class="fas fa-clipboard-list fa-3x" style="display: block; margin-bottom: 15px;"></i>
+                        Belum ada tindakan yang ditambahkan
+                    </p>
+                </div>
+            </div>
+
+            <div class="total">
+                <h3><i class="fas fa-calculator"></i> Total Pembayaran</h3>
+                <div class="total-amount" id="totalAmount">Rp 0</div>
+            </div>
+
+            <div class="diagnosis-section" id="diagnosisSection" style="display: none;">
+                <h4><i class="fas fa-stethoscope"></i> Diagnosis & Keterangan Pemeriksaan</h4>
+                <div class="diagnosis-text" id="diagnosisText">-</div>
+            </div>
+
+            <button class="print-btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Cetak Bill
+            </button>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <button class="print-btn" onclick="shareToWhatsApp()" style="background: rgba(37, 211, 102, 0.3); border-color: rgba(37, 211, 102, 0.5);">
+                    <i class="fab fa-whatsapp"></i> Share ke WhatsApp
+                </button>
+                
+                <button class="print-btn" onclick="shareToEmail()" style="background: rgba(52, 152, 219, 0.3); border-color: rgba(52, 152, 219, 0.5);">
+                    <i class="fas fa-envelope"></i> Share ke Email
+                </button>
+            </div>
+            
+            <button class="print-btn" onclick="clearBill()" style="background: rgba(231, 76, 60, 0.3); border-color: rgba(231, 76, 60, 0.5); margin-top: 10px;">
+                <i class="fas fa-trash"></i> Hapus Seluruh Bill
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const treatments = {
+            tambal_kecil: { name: 'Tambal Gigi Kecil', price: 500000 },
+            tambal_sedang: { name: 'Tambal Gigi Sedang', price: 800000 },
+            tambal_besar: { name: 'Tambal Gigi Besar', price: 1200000 },
+            scaling: { name: 'Scaling Gigi', price: 300000 },
+            cabut_gigi: { name: 'Cabut Gigi', price: 250000 },
+            root_canal: { name: 'Root Canal Treatment', price: 1500000 },
+            crown: { name: 'Pemasangan Crown', price: 2000000 },
+            konsultasi: { name: 'Konsultasi Dokter', price: 150000 },
+            rontgen: { name: 'Rontgen Gigi', price: 200000 },
+            bleaching: { name: 'Bleaching Gigi', price: 1000000 }
+        };
+
+        let selectedTreatments = [];
+        let patientData = null;
+        let queueCounter = 1;
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function generateQueueNumber() {
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }).replace('/', '');
+            const queueNum = queueCounter.toString().padStart(3, '0');
+            return `A${dateStr}${queueNum}`;
+        }
+
+        function initializeQueue() {
+            const queueNumber = generateQueueNumber();
+            document.getElementById('queueNumber').value = queueNumber;
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        function updatePatientInfo() {
+            const patientInfo = document.getElementById('patientInfo');
+            const displayQueue = document.getElementById('displayQueue');
+            const displayName = document.getElementById('displayName');
+            const displayAge = document.getElementById('displayAge');
+            const displayPhone = document.getElementById('displayPhone');
+            const displayEmail = document.getElementById('displayEmail');
+            const displayDate = document.getElementById('displayDate');
+            
+            displayQueue.textContent = patientData.queueNumber;
+            displayName.textContent = patientData.name;
+            displayAge.textContent = `${patientData.age} tahun`;
+            displayPhone.textContent = patientData.phone || '-';
+            displayEmail.textContent = patientData.email || '-';
+            displayDate.textContent = new Date().toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            patientInfo.style.display = 'block';
+        }
+
+        function updateDiagnosis(diagnosis) {
+            const diagnosisSection = document.getElementById('diagnosisSection');
+            const diagnosisText = document.getElementById('diagnosisText');
+            
+            diagnosisText.textContent = diagnosis;
+            diagnosisSection.style.display = 'block';
+        }
+
+        function renderTreatments() {
+            const treatmentItems = document.getElementById('treatmentItems');
+            
+            if (selectedTreatments.length === 0) {
+                treatmentItems.innerHTML = `
+                    <p style="text-align: center; opacity: 0.7; padding: 40px 0;">
+                        <i class="fas fa-clipboard-list fa-3x" style="display: block; margin-bottom: 15px;"></i>
+                        Belum ada tindakan yang ditambahkan
+                    </p>
+                `;
+                return;
+            }
+            
+            treatmentItems.innerHTML = selectedTreatments.map((treatment, index) => `
+                <div class="treatment-item">
+                    <div class="treatment-name">${treatment.name}</div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="treatment-price">${formatCurrency(treatment.price)}</div>
+                        <button class="remove-btn" onclick="removeTreatment(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTotal() {
+            const total = selectedTreatments.reduce((sum, treatment) => sum + treatment.price, 0);
+            document.getElementById('totalAmount').textContent = formatCurrency(total);
+        }
+
+        function removeTreatment(index) {
+            selectedTreatments.splice(index, 1);
+            renderTreatments();
+            updateTotal();
+            showAlert('Tindakan berhasil dihapus', 'success');
+        }
+
+        function resetForm() {
+            // Reset all data
+            selectedTreatments = [];
+            patientData = null;
+            
+            // Reset form fields
+            document.getElementById('patientForm').reset();
+            
+            // Generate new queue number for next patient
+            queueCounter++;
+            initializeQueue();
+            
+            // Enable all fields
+            document.getElementById('queueNumber').disabled = false;
+            document.getElementById('patientName').disabled = false;
+            document.getElementById('patientAge').disabled = false;
+            document.getElementById('patientPhone').disabled = false;
+            document.getElementById('patientEmail').disabled = false;
+            document.getElementById('diagnosis').disabled = false;
+            
+            // Hide patient info and diagnosis sections
+            document.getElementById('patientInfo').style.display = 'none';
+            document.getElementById('diagnosisSection').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'none';
+            
+            // Update button text
+            document.getElementById('addTreatmentBtn').innerHTML = '<i class="fas fa-plus"></i> Tambah Tindakan ke Bill';
+            
+            // Reset displays
+            renderTreatments();
+            updateTotal();
+            
+            showAlert('Form berhasil direset untuk pasien baru', 'success');
+        }
+
+        function clearBill() {
+            if (selectedTreatments.length === 0 && !patientData) {
+                showAlert('Tidak ada bill yang perlu dihapus', 'error');
+                return;
+            }
+
+            if (confirm('Apakah Anda yakin ingin menghapus seluruh bill ini? Data tidak dapat dikembalikan.')) {
+                // Reset all data
+                selectedTreatments = [];
+                patientData = null;
+                
+                // Hide patient info and diagnosis sections
+                document.getElementById('patientInfo').style.display = 'none';
+                document.getElementById('diagnosisSection').style.display = 'none';
+                
+                // Reset displays
+                renderTreatments();
+                updateTotal();
+                
+                // Enable form for new entry
+                resetForm();
+                
+                showAlert('Seluruh bill berhasil dihapus', 'success');
+            }
+        }
+
+        function generateBillText() {
+            if (!patientData || selectedTreatments.length === 0) {
+                return null;
+            }
+
+            const currentDate = new Date().toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const total = selectedTreatments.reduce((sum, treatment) => sum + treatment.price, 0);
+            
+            let billText = `🏥 *KLINIK JHDC*\n`;
+            billText += `📋 *BILL PEMBAYARAN*\n`;
+            billText += `═══════════════════════\n\n`;
+            
+            billText += `🎫 *No. Antrian: ${patientData.queueNumber}*\n\n`;
+            
+            billText += `👤 *DATA PASIEN:*\n`;
+            billText += `• Nama: ${patientData.name}\n`;
+            billText += `• Umur: ${patientData.age} tahun\n`;
+            billText += `• Telepon: ${patientData.phone || '-'}\n`;
+            billText += `• Email: ${patientData.email || '-'}\n`;
+            billText += `• Tanggal: ${currentDate}\n\n`;
+            
+            billText += `🦷 *TINDAKAN MEDIS:*\n`;
+            selectedTreatments.forEach((treatment, index) => {
+                billText += `${index + 1}. ${treatment.name}\n`;
+                billText += `   ${formatCurrency(treatment.price)}\n`;
+            });
+            
+            billText += `\n💰 *TOTAL PEMBAYARAN:*\n`;
+            billText += `*${formatCurrency(total)}*\n\n`;
+            
+            if (patientData.diagnosis) {
+                billText += `🩺 *DIAGNOSIS & KETERANGAN:*\n`;
+                billText += `${patientData.diagnosis}\n\n`;
+            }
+            
+            billText += `═══════════════════════\n`;
+            billText += `Terima kasih atas kepercayaan Anda\n`;
+            billText += `🏥 Klinik JHDC`;
+
+            return billText;
+        }
+
+        function shareToWhatsApp() {
+            if (!patientData || selectedTreatments.length === 0) {
+                showAlert('Tidak ada bill untuk dibagikan. Silakan buat bill terlebih dahulu.', 'error');
+                return;
+            }
+
+            const billText = generateBillText();
+            const encodedText = encodeURIComponent(billText);
+            
+            let whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
+            
+            // If patient has phone number, try to send directly to them
+            if (patientData.phone) {
+                const phoneNumber = patientData.phone.replace(/\D/g, ''); // Remove non-digits
+                const formattedPhone = phoneNumber.startsWith('0') ? 
+                    '62' + phoneNumber.substring(1) : phoneNumber;
+                whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodedText}`;
+            }
+            
+            window.open(whatsappUrl, '_blank');
+            showAlert('Bill dibuka di WhatsApp', 'success');
+        }
+
+        function shareToEmail() {
+            if (!patientData || selectedTreatments.length === 0) {
+                showAlert('Tidak ada bill untuk dibagikan. Silakan buat bill terlebih dahulu.', 'error');
+                return;
+            }
+
+            const billText = generateBillText();
+            const subject = encodeURIComponent(`Bill Pembayaran Klinik JHDC - ${patientData.name}`);
+            const body = encodeURIComponent(billText);
+            
+            let emailUrl = `mailto:?subject=${subject}&body=${body}`;
+            
+            // If patient has email, pre-fill the recipient
+            if (patientData.email) {
+                emailUrl = `mailto:${patientData.email}?subject=${subject}&body=${body}`;
+            }
+            
+            window.location.href = emailUrl;
+            showAlert('Aplikasi email dibuka dengan bill', 'success');
+        }
+
+        document.getElementById('patientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const queueNumber = document.getElementById('queueNumber').value;
+            const patientName = document.getElementById('patientName').value.trim();
+            const patientAge = document.getElementById('patientAge').value;
+            const patientPhone = document.getElementById('patientPhone').value.trim();
+            const patientEmail = document.getElementById('patientEmail').value.trim();
+            const treatmentSelect = document.getElementById('treatmentSelect').value;
+            const diagnosis = document.getElementById('diagnosis').value.trim();
+            
+            // Set patient data only once
+            if (!patientData) {
+                patientData = {
+                    queueNumber: queueNumber,
+                    name: patientName,
+                    age: patientAge,
+                    phone: patientPhone,
+                    email: patientEmail,
+                    diagnosis: diagnosis
+                };
+                updatePatientInfo();
+                updateDiagnosis(diagnosis);
+            }
+            
+            if (treatmentSelect && treatments[treatmentSelect]) {
+                const treatment = treatments[treatmentSelect];
+                selectedTreatments.push(treatment);
+                renderTreatments();
+                updateTotal();
+                
+                // Reset only treatment selection, keep patient data
+                document.getElementById('treatmentSelect').value = '';
+                
+                // Disable patient fields after first submission and show reset button
+                document.getElementById('queueNumber').disabled = true;
+                document.getElementById('patientName').disabled = true;
+                document.getElementById('patientAge').disabled = true;
+                document.getElementById('patientPhone').disabled = true;
+                document.getElementById('patientEmail').disabled = true;
+                document.getElementById('diagnosis').disabled = true;
+                document.getElementById('resetBtn').style.display = 'block';
+                
+                // Update button text to indicate adding more treatments
+                document.getElementById('addTreatmentBtn').innerHTML = '<i class="fas fa-plus"></i> Tambah Tindakan Lagi';
+                
+                showAlert(`Tindakan "${treatment.name}" berhasil ditambahkan ke bill`, 'success');
+            } else {
+                showAlert('Pilih tindakan yang akan ditambahkan', 'error');
+            }
+        });
+
+        // Set initial date and initialize queue
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            // Initialize queue number
+            initializeQueue();
+        });
+
+        // Input animations
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
